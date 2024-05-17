@@ -74,13 +74,24 @@ app.get('/profile', (req, res) => {
     const { token } = req.cookies;
     if (token) {
         jwt.verify(token, jwtSecret, {}, async (err, userData) => {
-            if (err) throw err;
-            const {name, email, _id} = await User.findById(userData.id)
-            res.json({name, email, _id});
-        })
+            if (err) {
+                return res.status(401).json({ error: 'Invalid token' });
+            }
+            try {
+                const { name, email, _id } = await User.findById(userData.id);
+                res.json({ name, email, _id });
+            } catch (err) {
+                res.status(500).json({ error: 'Failed to fetch user data' });
+            }
+        });
     } else {
         res.json(null);
     }
+});
+
+
+app.post('/logout', (req, res) => {
+    res.cookie('token', '').json(true);
 });
 
 app.listen(4000, () => {
