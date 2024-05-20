@@ -94,6 +94,10 @@ app.post('/logout', (req, res) => {
     res.cookie('token', '').json(true);
 });
 
+app.post('/upload-by-link', (req, res) => {
+    const { link } = req.body;
+})
+
 app.listen(4000, () => {
     console.log("port is listening at 4000");
 });
