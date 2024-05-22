@@ -137,7 +137,7 @@ app.post('/places', (req, res) => {
                 description, perks, extraInfo,
                 checkIn, checkOut, maxGuests, price
             })
-            res.jsom(placeDoc);
+            res.json(placeDoc);
         })
 })
 
