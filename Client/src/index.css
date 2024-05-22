@@ -10,6 +10,10 @@ textarea{
     @apply w-full border py-2 my-1 px-3 rounded-2xl;
 }
 
+textarea{
+    height: 140px;
+}
+
 button{
     @apply bg-gray-300;
 }

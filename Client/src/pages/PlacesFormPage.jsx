@@ -17,12 +17,26 @@ export default function PlacesFormPage() {
     const [checkOut, setCheckOut] = useState('');
     const [maxGuests, setMaxGuests] = useState(1);
     const [redirect, setRedirect] = useState(false);
+    const [price, setPrice] = useState(100);
 
     useEffect(() => {
         if (!id) {
             return;
         }
-        axios.get('/places/' + id);
+        axios.get('/places/' + id)
+            .then(response => {
+            const { data } = response;
+            setTitle(data.title);
+            setAddress(data.address);
+            setAddedPhotos(data.photos);
+            setDescription(data.description);
+            setPerks(data.perks);
+            setExtraInfo(data.extraInfo);
+            setCheckIn(data.checkIn);
+            setCheckOut(data.checkOut);
+            setMaxGuests(data.maxGuests);
+            setPrice(data.price);
+        })
     }, [id]);
 
     function inputHeader(text) {
@@ -46,11 +60,25 @@ export default function PlacesFormPage() {
         );
     }
 
-    async function addNewPlace(ev) {
+    async function savePlace(ev) {
         ev.preventDefault();
-        const placeData = { title, address, addedPhotos, description, perks, extraInfo, checkIn, checkOut, maxGuests };
-        await axios.post('/places', placeData);
-        setRedirect(true);
+        const placeData = {
+            title, address, addedPhotos,
+            description, perks, extraInfo,
+            checkIn, checkOut, maxGuests, price,
+        };
+        if (id) {
+            //update
+            await axios.put('/places', {
+                id, ...placeData
+            });
+            setRedirect(true);
+        } else {
+            //new
+            await axios.post('/places', placeData);
+            setRedirect(true);
+        }
+        
     }
     
     if (redirect) {
@@ -61,7 +89,7 @@ export default function PlacesFormPage() {
     return (
         <div>
             <AccountNav />
-                    <form onSubmit={addNewPlace}>
+                    <form onSubmit={savePlace}>
                         {preInput('Title','Title for your place, should be short and catchy as in advertisement')}
                         <input type='text' value={title} onChange={ev => setTitle(ev.target.value)} placeholder="title, for example: my lovely apartment" />
                         {preInput('Address','Address to this place')}
@@ -77,18 +105,22 @@ export default function PlacesFormPage() {
                         {preInput('Extra Info','house rules, etc')}
                         <textarea value={extraInfo} onChange={ev => setExtraInfo(ev.target.value)}/>
                         {preInput('Check in&out times','add check in & out times, remember to have some time window for cleaning the room between guests')}
-                        <div className="grid gap-2 sm:grid-cols-3">
+                        <div className="grid gap-2 grid-cols-2 md-grid-cols-4">
                             <div className="mt-2 -mb-1">
                                 <h3>Check in time</h3>
                                 <input type="text" placeholder="14" value={checkIn} onChange={ev => setCheckIn(ev.target.value)}/>
                             </div>
                             <div className="mt-2 -mb-1">
                                 <h3>Check out time</h3>
-                                <input type="text" placeholder="14" value={checkOut} onChange={ev => setCheckOut(ev.target.value)}/>
+                                <input type="text" placeholder="11" value={checkOut} onChange={ev => setCheckOut(ev.target.value)}/>
                             </div>
                             <div className="mt-2 -mb-1">
                                 <h3>Max number of guests</h3>
                                 <input type="number" value={maxGuests} onChange={ev => setMaxGuests(ev.target.value)}/>
+                            </div>
+                            <div className="mt-2 -mb-1">
+                                <h3>Price per night</h3>
+                                <input type="number" value={price} onChange={ev => setPrice(ev.target.value)}/>
                             </div>
                         </div>
                         <button className="primary my-4">Save</button>
