@@ -21,21 +21,14 @@ export function UserContextProvider({ children }) {
       });
   }, []);
 
-  const value = {
-    user,
-    setUser,
-    ready,
-    error,
-    logout: () => {
-      setUser(null);
-      setReady(false);
-      // You might want to clear cookies or tokens here
-      // e.g., axios.post('/logout').then(() => ...)
-    },
+  const logout = async () => {
+    await axios.post('/logout');
+    setUser(null);
+    setReady(true);
   };
 
   return (
-    <UserContext.Provider value={value}>
+    <UserContext.Provider value={{ user, setUser, ready, error, logout }}>
       {children}
     </UserContext.Provider>
   );
