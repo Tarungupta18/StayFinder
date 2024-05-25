@@ -86,7 +86,7 @@ app.post('/login', async (req, res) => {
     }
 });
 
-app.get('/profile', (req, res) => {
+app.get('/profile', (req,res) => {
     const { token } = req.cookies;
     if (token) {
         jwt.verify(token, jwtSecret, {}, async (err, userData) => {
@@ -205,10 +205,10 @@ app.post('/bookings', async (req, res) => {
 
 
 
-app.get('/booking', async (req, res) => {
+app.get('/bookings', async (req, res) => {
     const userData = await getUserDataFromReq(req);
-    res.json(await Booking.find({ user:userData.id }));
-})
+    res.json(await Booking.find({ user: userData.id }).populate('place'));
+});
 
 
 app.listen(4000, () => {

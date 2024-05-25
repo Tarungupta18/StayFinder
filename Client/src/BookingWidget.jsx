@@ -15,7 +15,11 @@ export default function BookingWidget({ place }) {
 
     const { user } = useContext(UserContext);
 
-    useEffect(()=>{})
+    useEffect(() => {
+        if (user) {
+            setName(user.name);
+        }
+    }, [user]);
 
     let numberOfNights = 0;
     if (checkIn && checkOut) {

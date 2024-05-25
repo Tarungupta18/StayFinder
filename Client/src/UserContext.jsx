@@ -9,7 +9,8 @@ export function UserContextProvider({ children }) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    axios
+    if (!user) {
+      axios
       .get("/profile")
       .then(({ data }) => {
         setUser(data);
@@ -19,6 +20,8 @@ export function UserContextProvider({ children }) {
         setError(error);
         setReady(true);
       });
+    }
+    
   }, []);
 
   const logout = async () => {
