@@ -23,8 +23,3 @@ dist-ssr
 *.sln
 *.sw?
 
-#dependencies
-/node_modules
-
-#secret
-/api/.env
