@@ -1,12 +1,14 @@
 const express = require("express");
+require('dotenv').config();
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const User = require("./models/User.js");
 const cookieParser = require("cookie-parser");
-const imageDownloader = require("image-downloader");
 const multer = require('multer');
+const { cloudinary } = require('./cloudConfig.js');
+const { storage } = require('./cloudConfig.js');
 const fs = require('fs');
 const path = require('path');
 const Place = require('./models/Place.js');
@@ -20,15 +22,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use(cookieParser());
-app.use('/uploads', express.static(__dirname + '/uploads'));
 
 app.use(cors({
     credentials: true,
     origin:'http://localhost:5173'
 }));
 
-// console.log(process.env.MONGO_URL);
-// mongoose.connect(process.env.MONGO_URL);
 
 main().then(() => {
     console.log("connected to db");
@@ -112,25 +111,46 @@ app.post('/logout', (req, res) => {
 
 app.post('/upload-by-link', async (req, res) => {
     const { link } = req.body;
-    const newName = 'phtoto' + Date.now() + '.jpg';
-    await imageDownloader.image({
-        url: link,
-        dest: __dirname + '/uploads/' + newName,
-    });
-    res.json(newName);
-})
-
-const photosMiddleware = multer({ dest: 'uploads' });
-app.post("/upload", photosMiddleware.array('photos', 100), (req, res) => {
-    const uploadedFiles = [];
-    for (let i = 0; i < req.files.length; i++) {
-        const { path: tempPath, originalname } = req.files[i];
-        const ext = path.extname(originalname);
-        const newPath = `${tempPath}${ext}`;
-        fs.renameSync(tempPath, newPath);
-        const filename = path.basename(newPath);
-        uploadedFiles.push(filename);
+    console.log(link);
+    try {
+        const result = await cloudinary.uploader.upload(link, {
+            folder: 'stayfinder'
+        });
+        console.log(result.url);
+        console.log("done");
+        res.json(result.url);
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: 'Failed to upload image' });
     }
+});
+
+const photosMiddleware = multer({ storage });
+app.post('/upload', photosMiddleware.array('photos', 100), async (req, res) => {
+    const uploadedFiles = [];
+
+    for (let i = 0; i < req.files.length; i++) {
+        const { path: tempPath } = req.files[i];
+
+        try {
+            // Upload file to Cloudinary
+            const result = await cloudinary.uploader.upload(tempPath, {
+                folder: 'stayfinder'
+            });
+
+            // Store secure URL in uploadedFiles array
+            uploadedFiles.push(result.secure_url);
+
+            // Delete temporary file after upload
+            fs.unlinkSync(tempPath);
+        } catch (e) {
+            console.error('Error uploading file:', e);
+            res.status(500).json({ error: 'Failed to upload image' });
+            return;
+        }
+    }
+
+    // Respond with array of uploaded file URLs
     res.json(uploadedFiles);
 });
 

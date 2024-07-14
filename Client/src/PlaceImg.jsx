@@ -3,10 +3,10 @@ export default function PlaceImg({ place, index = 0, className=null }) {
         return '';
     }
     if (!className) {
-        className = 'object-cover w-full h-full';
+        className = 'object-cover w-32 h-32';
     }
     
     return (
-            <img className={className} src={'http://localhost:4000/uploads/'+place.photos[index]} alt=""/>
+            <img className={className} src={place.photos[index]} alt=""/>
     );
 }
