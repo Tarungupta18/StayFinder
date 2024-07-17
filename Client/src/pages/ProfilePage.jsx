@@ -32,19 +32,33 @@ export default function ProfilePage() {
   }
   return (
     <div>
-      <AccountNav />
-      {subpage === 'profile' && (
-        <div className="text-center max-w-lg mx-auto bg-secondary height-40 border-solid border-2 border-indigo-600 p-8 rounded-3xl">
-          <div className="text-2xl border-b py-4">
-            Logged in as <span className="uppercase text-blue">{user.name}</span>
-          </div>
-           <div className="py-2">({user.email})</div>
-          <button onClick={logout} className="primary max-w-sm mt-2">Logout</button>
+            <AccountNav />
+            {subpage === 'profile' && (
+              <div className="mt-24">
+                <div className="flex justify-center items-center">
+                    <div className="bg-white shadow-lg rounded-lg p-8 max-w-md w-full">
+                        <div className="text-3xl font-bold text-gray-800 mb-4">
+                            Profile
+                        </div>
+                        <div className="text-center mb-6">
+                            <div className="text-2xl font-semibold text-gray-700">
+                                Logged in as <span className="text-blue-600 uppercase">{user.name}</span>
+                            </div>
+                            <div className="text-gray-500">({user.email})</div>
+                        </div>
+                        <div className="flex justify-center">
+                            <button onClick={logout} className="bg-indigo-600 text-white py-2 px-4 rounded-full shadow-md hover:bg-indigo-700 transition duration-300">
+                                Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            )}
+            {subpage === 'places' && (
+                <PlacesPage />
+            )}
         </div>
-      )}
-      {subpage === 'places' && (
-        <PlacesPage />
-      )}
-    </div>
+
   );
 }
